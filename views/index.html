@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laboratório de Sensores | Login</title>
+ <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z' fill='%23123a5d' stroke='%2368d8cf' stroke-width='1.5'/><circle cx='12' cy='9' r='3' fill='%2316a34a'/></svg>">
+  <!-- Caminhos ajustados para a raiz do servidor público -->
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/auth.js" defer></script>
+</head>
+<body class="login-page">
+  <main class="login-card">
+    <span class="eyebrow">AULA PRÁTICA • GOOGLE MAPS</span>
+    <h1>Monitoramento de sensores</h1>
+    <p>Acesse o laboratório para cadastrar sensores no mapa de Manaus.</p>
+
+    <form id="loginForm">
+      <label for="usuario">Usuário</label>
+      <input id="usuario" name="usuario" autocomplete="username" required placeholder="aluno">
+
+      <label for="senha">Senha</label>
+      <input id="senha" name="senha" type="password" autocomplete="current-password" required placeholder="123456">
+
+      <button type="submit">Entrar no painel</button>
+      <p id="mensagemLogin" class="erro" role="alert"></p>
+    </form>
+
+    <p class="nota">Credenciais didáticas: <strong>aluno / 123456</strong>. Não use este login em produção.</p>
+  </main>
+</body>
+</html>
