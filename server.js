@@ -1,13 +1,20 @@
+require('dotenv').config(); // Carrega as variáveis do arquivo .env
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware para processar JSON e formulários
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rota dinâmica para fornecer a chave da API do Google Maps contida no .env
+app.get('/js/config.js', (req, res) => {
+  res.type('application/javascript');
+  res.send(`window.GOOGLE_MAPS_API_KEY = "${process.env.GOOGLE_MAPS_API_KEY || ''}";`);
+});
 
 // Servir arquivos estáticos (CSS e JS front-end a partir de /public)
 app.use(express.static(path.join(__dirname, 'public')));
