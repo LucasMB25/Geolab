@@ -13,7 +13,18 @@ app.use(express.urlencoded({ extended: true }));
 // Rota dinâmica para fornecer a chave da API do Google Maps contida no .env
 app.get('/js/config.js', (req, res) => {
   res.type('application/javascript');
-  res.send(`window.GOOGLE_MAPS_API_KEY = "${process.env.GOOGLE_MAPS_API_KEY || ''}";`);
+  const key = process.env.GOOGLE_MAPS_API_KEY || '';
+  
+  res.send(`
+    window.GOOGLE_MAPS_API_KEY = "${key}";
+    window.CONFIG = {
+      GOOGLE_MAPS_API_KEY: "${key}",
+      API_KEY: "${key}",
+      CENTRO: { lat: -3.1303, lng: -60.0234 },
+      ZOOM: 11,
+      MAP_ID: "DEMO_MAP_ID"
+    };
+  `);
 });
 
 // Servir arquivos estáticos (CSS e JS front-end a partir de /public)
@@ -41,6 +52,11 @@ app.get('/', (req, res) => {
     return res.redirect('/mapa');
   }
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+
+// Redirecionamento amigável caso acesse /index.html diretamente
+app.get('/index.html', (req, res) => {
+  res.redirect('/');
 });
 
 // ROTA 2: Painel do Mapa (Protegida)

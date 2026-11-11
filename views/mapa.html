@@ -3,82 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel de sensores | Manaus</title>
+  <title>GeoLab • Painel de dispositivos</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z' fill='%23123a5d' stroke='%2368d8cf' stroke-width='1.5'/><circle cx='12' cy='9' r='3' fill='%2316a34a'/></svg>">
   <link rel="stylesheet" href="/css/style.css">
 
-  <!-- 1. Carrega a variável window.GOOGLE_MAPS_API_KEY servida pelo backend (server.js) -->
+  <!-- 1. Carrega a variável window.GOOGLE_MAPS_API_KEY do backend (.env) -->
   <script src="/js/config.js"></script>
 
-  <!-- 2. Monta a URL do Google Maps dinamicamente com a chave vinda do .env -->
-  <script>
-    const gmapsScript = document.createElement('script');
-    gmapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&libraries=marker&v=weekly`;
-    gmapsScript.defer = true;
-    document.head.appendChild(gmapsScript);
-  </script>
-
-  <!-- 3. Lógica da aplicação -->
-  <script src="/js/sensores.js" defer></script>
+  <!-- 2. Scripts da aplicação -->
+  <script src="/js/storage.js" defer></script>
+  <script src="/js/mapa.js" defer></script>
+  <script src="/js/app.js" defer></script>
 </head>
 <body>
   <header class="topbar">
     <div>
-      <span class="eyebrow">LABORATÓRIO DE GEOLOCALIZAÇÃO</span>
-      <h1>Sensores de Manaus</h1>
+      <span class="eyebrow">MAPAS • JAVASCRIPT • DOM</span>
+      <h1>GeoLab <span>Dispositivos</span></h1>
     </div>
     <button id="sair" class="secondary">Sair</button>
   </header>
 
   <main class="layout">
     <aside class="panel">
-      <h2>Cadastrar sensor</h2>
-      <p>Clique em um ponto no mapa ou preencha as coordenadas.</p>
-
-      <form id="sensorForm">
-        <label for="nome">Nome / tag do sensor</label>
-        <input id="nome" maxlength="60" required placeholder="Ex.: SENSOR-001">
-
-        <div class="duas-colunas">
-          <div>
-            <label for="lat">Latitude</label>
-            <input id="lat" type="number" step="any" min="-90" max="90" required placeholder="-3.1303">
+      <section>
+        <h2 id="tituloForm">Cadastrar dispositivo</h2>
+        <p class="hint">Clique no mapa para preencher latitude e longitude.</p>
+        
+        <form id="dispositivoForm">
+          <input id="idEdicao" type="hidden">
+          
+          <label for="tag">Identificação / tag</label>
+          <input id="tag" maxlength="40" required placeholder="EX.: SENSOR-001">
+          
+          <label for="tipo">Tipo</label>
+          <select id="tipo" required>
+            <option value="sensor">Sensor</option>
+            <option value="camera">Câmera</option>
+            <option value="gateway">Gateway</option>
+          </select>
+          
+          <label for="descricao">Descrição</label>
+          <input id="descricao" maxlength="100" placeholder="Ex.: Temperatura do galpão A">
+          
+          <div class="duas-colunas">
+            <div>
+              <label for="lat">Latitude</label>
+              <input id="lat" type="number" step="any" min="-90" max="90" required placeholder="-3.1303">
+            </div>
+            <div>
+              <label for="lng">Longitude</label>
+              <input id="lng" type="number" step="any" min="-180" max="180" required placeholder="-60.0234">
+            </div>
           </div>
-          <div>
-            <label for="lng">Longitude</label>
-            <input id="lng" type="number" step="any" min="-180" max="180" required placeholder="-60.0234">
-          </div>
+          
+          <label for="status">Status simulado</label>
+          <select id="status">
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+            <option value="manutencao">Manutenção</option>
+          </select>
+          
+          <button id="salvar" type="submit">Cadastrar dispositivo</button>
+          <button id="cancelar" class="secondary" type="button" hidden>Cancelar edição</button>
+        </form>
+        
+        <p id="mensagem" class="mensagem" role="status" aria-live="polite">Preencha os dados ou selecione um ponto no mapa.</p>
+      </section>
+
+      <section class="lista-secao">
+        <div class="titulo-linha">
+          <h2>Dispositivos <span id="contador">(0)</span></h2>
+          <button id="exemplo" class="secondary pequeno">Carregar exemplos</button>
         </div>
-
-        <label for="status">Status</label>
-        <select id="status">
-          <option value="conectado">Conectado</option>
+        
+        <label for="busca">Pesquisar por tag ou descrição</label>
+        <input id="busca" type="search" placeholder="Pesquisar dispositivos...">
+        
+        <label for="filtro">Filtrar status</label>
+        <select id="filtro">
+          <option value="todos">Todos</option>
+          <option value="online">Online</option>
           <option value="offline">Offline</option>
+          <option value="manutencao">Manutenção</option>
         </select>
-
-        <button type="submit">Cadastrar sensor</button>
-      </form>
-
-      <p id="mensagem" role="status" aria-live="polite">Clique no mapa para escolher as coordenadas.</p>
-
-      <div class="legenda">
-        <span><i class="bolinha verde"></i> Conectado</span>
-        <span><i class="bolinha vermelha"></i> Offline</span>
-      </div>
-
-      <div class="acoes">
-        <button id="mostrarTodos" class="secondary">Mostrar todos</button>
-        <button id="limpar" class="danger">Limpar sensores</button>
-      </div>
-
-      <h2>Sensores cadastrados <span id="contador">(0)</span></h2>
-      <ul id="listaSensores" class="lista"></ul>
-
-      <small>O status é manual e simulado: não há comunicação com um sensor físico. Dados salvos somente neste navegador.</small>
+        
+        <div class="acoes">
+          <button id="mostrarTodos" class="secondary" type="button">Mostrar todos</button>
+          <button id="exportar" class="secondary" type="button">Exportar JSON</button>
+        </div>
+        
+        <div class="acoes">
+          <button id="limpar" class="danger" type="button">Limpar dados</button>
+        </div>
+        
+        <ul id="lista" class="lista"></ul>
+      </section>
     </aside>
 
     <section class="map-area">
-      <div id="mapa" aria-label="Mapa de sensores em Manaus"></div>
+      <div class="map-title">
+        <strong>Mapa de Manaus</strong>
+        <span class="legenda">
+          <i class="dot online"></i> Online 
+          <i class="dot offline"></i> Offline 
+          <i class="dot manutencao"></i> Manutenção
+        </span>
+      </div>
+      <div id="mapa" aria-label="Mapa interativo dos dispositivos"></div>
+      <div id="mapaErro" class="map-error" hidden></div>
     </section>
   </main>
 </body>
